@@ -6,11 +6,10 @@ services:
     container_name: stats-server
     ports:
       - "9090:9090"
-      - "8081:8081"
     depends_on:
       - stats-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/${STATS_DB}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm-stats
 
   ewm-service:
     build: ./main-service
@@ -21,7 +20,7 @@ services:
     depends_on:
       - ewm-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/${EWM_DB}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-main
       - STATS_SERVER_URL=http://stats-server:9090
 
   stats-db:
@@ -34,9 +33,9 @@ services:
       - "7654:5432"
     # переменные окружения
     environment:
-      - POSTGRES_DB=${STATS_DB}
-      - POSTGRES_USER=${STATS_DB_USER}
-      - POSTGRES_PASSWORD=${STATS_DB_PASSWORD}
+      - POSTGRES_DB=ewm-stats
+      - POSTGRES_USER=ewm-stats
+      - POSTGRES_PASSWORD=ewm-stats
 
   ewm-db:
     image: postgres:15-alpine
@@ -48,6 +47,6 @@ services:
       - "6543:5432"
     # переменные окружения
     environment:
-      - POSTGRES_DB=${EWM_DB}
-      - POSTGRES_USER=${EWM_DB_USER}
-      - POSTGRES_PASSWORD=${EWM_DB_PASSWORD}
+      - POSTGRES_DB=ewm-main
+      - POSTGRES_USER=ewm-main
+      - POSTGRES_PASSWORD=ewm-main
