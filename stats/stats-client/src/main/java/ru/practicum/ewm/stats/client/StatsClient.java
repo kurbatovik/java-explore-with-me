@@ -45,7 +45,6 @@ public class StatsClient extends BaseClient {
                 .setUri(uri)
                 .setTimestamp(LocalDateTime.now());
         post("/hit", endpointHitDto);
-        log.info("Got request: {}, from app: {}", request, appName);
     }
 
     public ResponseEntity<Object> stats(ViewStatsRequest viewStatsRequest) {
@@ -59,5 +58,9 @@ public class StatsClient extends BaseClient {
             path += "&uris={uris}";
         }
         return get(path, param);
+    }
+
+    public ResponseEntity<Object> hit(EndpointHitDto hitDto) {
+        return post("/hit", hitDto);
     }
 }
