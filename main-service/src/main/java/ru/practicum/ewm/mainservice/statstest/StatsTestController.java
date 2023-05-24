@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.ewm.stats.client.StatsClient;
-import ru.practicum.ewm.stats.dto.EndpointHitDto;
 import ru.practicum.ewm.stats.dto.ViewStatsRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,8 +26,7 @@ public class StatsTestController {
     }
 
     @PostMapping("/hit")
-    public ResponseEntity<Object> logIPAndPath(@RequestBody EndpointHitDto hitDto, HttpServletRequest request) {
+    public void logIPAndPath(HttpServletRequest request) {
         statsClient.hit(request);
-        return statsClient.hit(hitDto);
     }
 }

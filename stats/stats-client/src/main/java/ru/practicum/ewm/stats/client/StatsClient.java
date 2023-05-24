@@ -59,8 +59,4 @@ public class StatsClient extends BaseClient {
         }
         return get(path, param);
     }
-
-    public ResponseEntity<Object> hit(EndpointHitDto hitDto) {
-        return post("/hit", hitDto);
-    }
 }
