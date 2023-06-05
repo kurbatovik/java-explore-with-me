@@ -28,6 +28,7 @@ public class StatsService {
         } else {
             result = statsRepository.countIpByUris(request.getUris(), request.getStart(), request.getEnd());
         }
+        System.out.println(result);
         return result.stream()
                 .map(this::getViewStat)
                 .collect(Collectors.toList());

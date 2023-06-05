@@ -1,11 +1,13 @@
 package ru.practicum.ewm.stats.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,4 +28,13 @@ public class ViewStatsRequest {
     List<String> uris;
 
     boolean unique;
+
+    @JsonIgnore
+    @AssertTrue(message = "End date must be after start date and dates cannot be equal")
+    public boolean isValidDate() {
+        if (start == null || end == null) {
+            return false;
+        }
+        return end.isAfter(start) && !end.equals(start);
+    }
 }

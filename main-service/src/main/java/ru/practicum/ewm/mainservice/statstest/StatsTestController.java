@@ -30,3 +30,4 @@ public class StatsTestController {
         statsClient.hit(request);
     }
 }
+
