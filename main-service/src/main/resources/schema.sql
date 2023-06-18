@@ -51,17 +51,17 @@ CREATE TABLE public.events
     location_lat       REAL,
     location_lon       REAL,
     CONSTRAINT pk_events PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES public.users (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-    FOREIGN KEY (category_id) REFERENCES public.categories (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-    FOREIGN KEY (location_lat, location_lon) REFERENCES public.location (lat, lon) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY (user_id) REFERENCES public.users (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (category_id) REFERENCES public.categories (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (location_lat, location_lon) REFERENCES public.location (lat, lon) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS public.compilations_events
 (
     compilation_id BIGINT NOT NULL,
     event_id       BIGINT NOT NULL,
-    FOREIGN KEY (event_id) REFERENCES public.events (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-    FOREIGN KEY (compilation_id) REFERENCES public.compilations (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY (event_id) REFERENCES public.events (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (compilation_id) REFERENCES public.compilations (id) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 CREATE TABLE IF NOT EXISTS public.participation_request
 (
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS public.participation_request
     event_id     BIGINT,
     requester_id BIGINT,
     CONSTRAINT pk_participation_request PRIMARY KEY (id),
-    FOREIGN KEY (event_id) REFERENCES public.events (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION,
-    FOREIGN KEY (requester_id) REFERENCES public.users (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY (event_id) REFERENCES public.events (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (requester_id) REFERENCES public.users (id) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_participation_request_event_requester ON public.participation_request (event_id, requester_id);
