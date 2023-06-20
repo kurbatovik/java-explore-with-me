@@ -1,6 +1,7 @@
 package ru.practicum.ewm.mainservice.event.repository;
 
 import org.springframework.data.jpa.repository.Query;
+import ru.practicum.ewm.mainservice.event.State;
 import ru.practicum.ewm.mainservice.event.entity.Event;
 import ru.practicum.ewm.mainservice.repository.Repository;
 
@@ -15,4 +16,6 @@ public interface EventRepository extends Repository<Event, Long> {
 
     List<Event> findByCategoryId(long categoryId);
 
+    @Query("SELECT e FROM Event e JOIN FETCH e.location WHERE e.id = ?1 AND e.state = ?2")
+    Optional<Event> findByIdAndState(long eventId, State state);
 }
