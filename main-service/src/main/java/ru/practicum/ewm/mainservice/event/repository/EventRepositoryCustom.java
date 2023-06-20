@@ -26,13 +26,13 @@ public class EventRepositoryCustom {
     private final EntityManager entityManager;
 
     public List<Event> findEventsByInitiatorId(long initiatorId, int from, int size) {
+        log.info("Finding events by initiatorId={}, from={}, size={}", initiatorId, from, size);
+
         Criteria criteria = new Criteria(entityManager);
         Root<Event> eventRoot = getEventRootWithFetchAll(criteria.query);
 
         criteria.query.select(eventRoot)
                 .where(criteria.builder.equal(eventRoot.get("initiator"), initiatorId));
-
-        log.info("Parameters: initiatorId={}, from={}, size={}", initiatorId, from, size);
 
         TypedQuery<Event> typedQuery = entityManager.createQuery(criteria.query);
         typedQuery.setFirstResult(from);
@@ -42,6 +42,8 @@ public class EventRepositoryCustom {
     }
 
     public Optional<Event> findByIdAndState(long eventId, State state) {
+        log.info("Finding event by eventId={}, state={}", eventId, state);
+
         Criteria criteria = new Criteria(entityManager);
         Root<Event> eventRoot = getEventRootWithFetchAll(criteria.query);
 
@@ -51,12 +53,12 @@ public class EventRepositoryCustom {
                         criteria.builder.equal(eventRoot.get("state"), state)
                 );
 
-        log.info("Parameters: eventId={}, state={}", eventId, state);
-
         return entityManager.createQuery(criteria.query).getResultStream().findFirst();
     }
 
     public Optional<Event> findByIdAndInitiatorId(long eventId, long userId) {
+        log.info("Finding event by eventId={}, userId={}", eventId, userId);
+
         Criteria criteria = new Criteria(entityManager);
         Root<Event> eventRoot = getEventRootWithFetchAll(criteria.query);
 
@@ -66,12 +68,12 @@ public class EventRepositoryCustom {
                         criteria.builder.equal(eventRoot.get("initiator"), userId)
                 );
 
-        log.info("Parameters: eventId={}, userId={}", eventId, userId);
-
         return entityManager.createQuery(criteria.query).getResultStream().findFirst();
     }
 
     public List<Event> findEventsByParameters(final EventRequestParameters parameters) {
+        log.info("Finding events by parameters: {}", parameters);
+
         Criteria criteria = new Criteria(entityManager);
         Root<Event> eventRoot = getEventRootWithFetchAll(criteria.query);
         List<Predicate> predicates = new ArrayList<>();
@@ -116,9 +118,6 @@ public class EventRepositoryCustom {
             }
         }
 
-        log.info("Parameters: {}", parameters);
-
-
         return entityManager.createQuery(criteria.query)
                 .setFirstResult(parameters.getFrom())
                 .setMaxResults(parameters.getSize())
@@ -126,6 +125,8 @@ public class EventRepositoryCustom {
     }
 
     public List<Event> findEventsByParameters(final AdminEventRequestParameters parameters) {
+        log.info("Finding events by parameters: {}", parameters);
+
         Criteria criteria = new Criteria(entityManager);
         Root<Event> eventRoot = getEventRootWithFetchAll(criteria.query);
         List<Predicate> predicates = new ArrayList<>();
@@ -151,8 +152,6 @@ public class EventRepositoryCustom {
             predicates.add(criteria.builder.lessThanOrEqualTo(eventRoot.get("eventDate"),
                     parameters.getRangeEnd()));
         }
-
-        log.info("Parameters: {}", parameters);
 
         criteria.query.select(eventRoot).where(predicates.toArray(new Predicate[0]));
 

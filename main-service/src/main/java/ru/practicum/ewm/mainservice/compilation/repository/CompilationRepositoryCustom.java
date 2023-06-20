@@ -22,31 +22,23 @@ public class CompilationRepositoryCustom {
     private final EntityManager entityManager;
 
     public List<Compilation> findCompilations(Boolean pinned, int from, int size) {
-        Criteria criteria = new Criteria(entityManager);
-        Root<Compilation> compilationRoot = getCompilationRootWithFetchAll(criteria.query);
+        log.info("Find compilation with parameters: pinned={}, from={}, size={}", pinned, from, size);
 
-        CriteriaQuery<Compilation> query = criteria.query.select(compilationRoot);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Compilation> criteriaQuery = criteriaBuilder.createQuery(Compilation.class);
+
+        Root<Compilation> compilationRoot = getCompilationRootWithFetchAll(criteriaQuery);
+
+        CriteriaQuery<Compilation> query = criteriaQuery.select(compilationRoot);
         if (pinned != null) {
-            query.where(criteria.builder.equal(compilationRoot.get("pinned"), pinned));
+            query.where(criteriaBuilder.equal(compilationRoot.get("pinned"), pinned));
         }
 
-        log.info("Parameters: pinned={}, from={}, size={}", pinned, from, size);
-
-        TypedQuery<Compilation> typedQuery = entityManager.createQuery(criteria.query);
+        TypedQuery<Compilation> typedQuery = entityManager.createQuery(criteriaQuery);
         typedQuery.setFirstResult(from);
         typedQuery.setMaxResults(size);
 
         return typedQuery.getResultList();
-    }
-
-    private static class Criteria {
-        CriteriaBuilder builder;
-        CriteriaQuery<Compilation> query;
-
-        Criteria(EntityManager entityManager) {
-            builder = entityManager.getCriteriaBuilder();
-            query = builder.createQuery(Compilation.class);
-        }
     }
 
     private Root<Compilation> getCompilationRootWithFetchAll(CriteriaQuery<Compilation> query) {

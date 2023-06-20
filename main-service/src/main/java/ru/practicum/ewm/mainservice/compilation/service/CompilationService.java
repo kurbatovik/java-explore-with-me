@@ -26,7 +26,9 @@ public class CompilationService {
         List<Long> eventIds = compilation.getEvents().stream()
                 .map(Event::getId).collect(Collectors.toList());
         List<Event> events = eventRepository.findAllById(eventIds);
-        compilation.setEvents(events);
+        if (events.size() > 0) {
+            compilation.setEvents(events);
+        }
         return compilation;
     }
 
@@ -38,9 +40,9 @@ public class CompilationService {
         return compilationRepository.findByIdOrThrowNotFoundException(compilationId, "Compilation");
     }
 
-    public void deleteCompilation(long compilationId) {
-        Compilation compilation = compilationRepository.findByIdOrThrowNotFoundException(compilationId, "Compilation");
-        compilationRepository.delete(compilation);
+    public boolean deleteCompilation(long compilationId) {
+        compilationRepository.deleteById(compilationId);
+        return compilationRepository.findById(compilationId).isEmpty();
     }
 
     public Compilation patchCompilation(Compilation updateCompilation) {

@@ -143,7 +143,10 @@ public class AdminController {
     @DeleteMapping("/compilations/{compilationId}")
     public void deleteCompilation(@PathVariable @Positive long compilationId) {
         log.info("Delete compilation with ID={}", compilationId);
-        compilationService.deleteCompilation(compilationId);
+        boolean result = compilationService.deleteCompilation(compilationId);
+        if (result) {
+            log.info("The compilation was successfully deleted");
+        }
     }
 
     @PatchMapping("/compilations/{compilationId}")
