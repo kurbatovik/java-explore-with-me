@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.ewm.mainservice.comment.service.CommentService;
 import ru.practicum.ewm.mainservice.event.dto.EventFullDto;
 import ru.practicum.ewm.mainservice.event.dto.EventShortDto;
 import ru.practicum.ewm.mainservice.event.dto.request_param.EventRequestParameters;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,6 +41,8 @@ public class EventController {
     private final EventMapper eventMapper;
     private final EventService eventService;
 
+    private final CommentService commentService;
+
     private final StatsClient statsClient;
 
     @GetMapping
@@ -46,8 +50,9 @@ public class EventController {
                                          HttpServletRequest request) {
         statsClient.hit(request);
         List<Event> events = eventService.getPublicEvents(eventRequestParameters);
+        Map<Long, Long> commentCounts = commentService.getCountsByEvents(events);
         return events.stream()
-                .map(eventMapper::toShortDto)
+                .map(event -> eventMapper.toShortDto(event, commentCounts.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 

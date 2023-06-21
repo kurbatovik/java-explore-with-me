@@ -122,9 +122,9 @@ public class UserController {
                                                      @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("Get events for user id: {}", userId);
         List<Event> eventsByInitiator = eventService.findEventsByInitiator(userId, from, size);
-        return eventsByInitiator
-                .stream()
-                .map(eventMapper::toShortDto)
+        Map<Long, Long> commentCounts = commentService.getCountsByEvents(eventsByInitiator);
+        return eventsByInitiator.stream()
+                .map(event -> eventMapper.toShortDto(event, commentCounts.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
