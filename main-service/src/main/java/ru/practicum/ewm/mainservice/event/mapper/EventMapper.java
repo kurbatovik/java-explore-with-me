@@ -44,7 +44,8 @@ public interface EventMapper {
 
     EventFullDto toFullDto(Event event);
 
-    EventShortDto toShortDto(Event event);
+    @Mapping(target = "commentsCount", source = "commentCount")
+    EventShortDto toShortDto(Event event, long commentCount);
 
     default Category map(long value) {
         if (value == 0) {

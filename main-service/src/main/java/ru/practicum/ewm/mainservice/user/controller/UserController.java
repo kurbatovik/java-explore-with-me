@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.ewm.mainservice.comment.dto.CommentDto;
+import ru.practicum.ewm.mainservice.comment.dto.CommentRequestDto;
+import ru.practicum.ewm.mainservice.comment.entity.Comment;
+import ru.practicum.ewm.mainservice.comment.mapper.CommentMapper;
+import ru.practicum.ewm.mainservice.comment.service.CommentService;
 import ru.practicum.ewm.mainservice.event.dto.NewEventDto;
 import ru.practicum.ewm.mainservice.event.dto.ResponseEventDto;
 import ru.practicum.ewm.mainservice.event.dto.UpdateEventDtoUserRequest;
@@ -42,6 +47,8 @@ import java.util.stream.Collectors;
 @Validated
 public class UserController {
 
+    public final CommentMapper commentMapper;
+    public final CommentService commentService;
     public final EventMapper eventMapper;
     public final ParticipationRequestMapper participationRequestMapper;
     public final UserService userService;
@@ -115,9 +122,9 @@ public class UserController {
                                                      @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("Get events for user id: {}", userId);
         List<Event> eventsByInitiator = eventService.findEventsByInitiator(userId, from, size);
-        return eventsByInitiator
-                .stream()
-                .map(eventMapper::toShortDto)
+        Map<Long, Long> commentCounts = commentService.getCountsByEvents(eventsByInitiator);
+        return eventsByInitiator.stream()
+                .map(event -> eventMapper.toShortDto(event, commentCounts.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
@@ -138,6 +145,39 @@ public class UserController {
         Event event = eventMapper.fromUpdateUserRequest(eventUserRequest, eventId);
         event = eventService.updateEventByUser(event, userId);
         return eventMapper.toFullDto(event);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{userId}/comments")
+    public CommentDto createComment(@PathVariable @Positive long userId,
+                                    @RequestParam @Positive long eventId,
+                                    @RequestBody @Validated CommentRequestDto commentRequestDto) {
+        log.info("Create comment: \"{}\". For Event with ID={}, from User with ID={}",
+                commentRequestDto.getComment(), eventId, userId);
+        Comment comment = commentMapper.fromDto(commentRequestDto);
+        comment = commentService.createComment(comment, eventId, userId);
+        return commentMapper.toDto(comment);
+    }
+
+    @PatchMapping("/{userId}/comments/{commentId}")
+    public CommentDto patchComment(@PathVariable @Positive long commentId,
+                                   @PathVariable @Positive long userId,
+                                   @RequestBody @Validated CommentRequestDto commentRequestDto) {
+        log.info("Patch comment: \"{}\". For Comment with ID={}, from User with ID={}",
+                commentRequestDto.getComment(), commentId, userId);
+        Comment comment = commentMapper.fromDto(commentRequestDto);
+        comment = commentService.patchCommentById(comment, commentId, userId);
+        return commentMapper.toDto(comment);
+    }
+
+    @GetMapping("/{userId}/comments")
+    public List<CommentDto> getCommentsByUserId(@PathVariable @Positive long userId,
+                                                @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+                                                @RequestParam(defaultValue = "10") @Positive int size) {
+        log.info("Get comments by user ID={}, from={}, size={}", userId, from, size);
+        return commentService.getCommentsByUserId(userId, from, size).stream()
+                .map(commentMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     private void setDefaultValue(NewEventDto eventDto) {
